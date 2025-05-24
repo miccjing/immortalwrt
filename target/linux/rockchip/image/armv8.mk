@@ -236,6 +236,21 @@ define Device/lunzn_fastrhino-r68s
 endef
 TARGET_DEVICES += lunzn_fastrhino-r68s
 
+define Device/nlnet_common
+  DEVICE_VENDOR := NLnet
+  SOC := rk3568
+  UBOOT_DEVICE_NAME := xgp-rk3568
+  BOOT_FLOW := pine64-img
+  DEVICE_PACKAGES := kmod-button-hotplug kmod-hwmon-pwmfan default-settings-chn kmod-mt7921e wpad-openssl autocore vim bash screen wget-ssl curl
+endef
+
+define Device/nlnet_xgp
+$(call Device/nlnet_common)
+  DEVICE_MODEL := XiGuaPi
+  DEVICE_DTS = rockchip/rk3568-xgp-v3
+endef
+TARGET_DEVICES += nlnet_xgp
+
 define Device/lyt_t68m
   DEVICE_VENDOR := LYT
   DEVICE_MODEL := T68M
