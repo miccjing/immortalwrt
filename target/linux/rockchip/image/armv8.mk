@@ -241,7 +241,7 @@ define Device/nlnet_common
   SOC := rk3568
   UBOOT_DEVICE_NAME := xgp-rk3568
   BOOT_FLOW := pine64-img
-  DEVICE_PACKAGES := kmod-button-hotplug kmod-hwmon-pwmfan default-settings-chn kmod-mt7921e wpad-openssl autocore vim bash screen wget-ssl curl
+  DEVICE_PACKAGES := kmod-button-hotplug kmod-hwmon-pwmfan default-settings-chn autocore
 endef
 
 define Device/nlnet_xgp
