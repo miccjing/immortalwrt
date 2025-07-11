@@ -1,3 +1,13 @@
+From 11e2ed1bc7bc96bd2b094fef5f57acec4efae952 Mon Sep 17 00:00:00 2001
+From: Tianling Shen <cnsztl@immortalwrt.org>
+Date: Sun, 9 Mar 2025 02:02:24 +0800
+Subject: [PATCH] : mtk_spi_nand: add support for dosilicon fmsh gsto spi nand
+
+Signed-off-by: Tianling Shen <cnsztl@immortalwrt.org>
+---
+ .../drivers/spi_nand/mtk_spi_nand.c           | 28 ++++++++++++++-----
+ 1 file changed, 21 insertions(+), 7 deletions(-)
+
 --- a/plat/mediatek/apsoc_common/drivers/spi_nand/mtk_spi_nand.c
 +++ b/plat/mediatek/apsoc_common/drivers/spi_nand/mtk_spi_nand.c
 @@ -20,8 +20,11 @@
@@ -27,10 +37,59 @@
  		INFO("PP COPY %d CRC read: 0x%x, compute: 0x%x\n",
  		     i, crc, crc_compute);
  
-+		// HACK: for FMSH
++		// Integrity CRC (bytes 254-255) on FMSH was reversed
 +		if (crc != crc_compute)
 +			crc = htobe16(pp->integrity_crc);
 +
  		if (crc != crc_compute) {
  			ret = -EBADMSG;
  			continue;
+@@ -633,8 +643,9 @@ restore:
+ 	return ret;
+ }
+ 
+-static int spi_nand_read_pp(struct parameter_page *pp, uint8_t *sel)
++static int spi_nand_read_pp(uint8_t *id, struct parameter_page *pp, uint8_t *sel)
+ {
++	const bool is_dosilicon = (id[1] == DOSILICON_ID);
+ 	uint8_t status;
+ 	uint8_t cfg_reg;
+ 	int ret, op_ret;
+@@ -646,7 +657,7 @@ static int spi_nand_read_pp(struct param
+ 		return ret;
+ 	}
+ 
+-	ret = spi_nand_write_reg(SPI_NAND_REG_CFG, cfg_reg | BIT(6));
++	ret = spi_nand_write_reg(SPI_NAND_REG_CFG, is_dosilicon ? BIT(6) : (cfg_reg | BIT(6)));
+ 	if (ret != 0) {
+ 		return ret;
+ 	}
+@@ -682,7 +693,7 @@ out:
+ 		ERROR("Parameter page read failed\n");
+ 	}
+ 
+-	ret = spi_nand_write_reg(SPI_NAND_REG_CFG, cfg_reg);
++	ret = spi_nand_write_reg(SPI_NAND_REG_CFG, is_dosilicon ? 0x10 : cfg_reg);
+ 	if (ret != 0) {
+ 		return ret;
+ 	}
+@@ -873,13 +884,15 @@ int spi_nand_init(unsigned long long *si
+ 	ret = spi_nand_read_casn((struct casn_page *)buf, &sel);
+ 	if (ret) {
+ 		WARN("Fail to read CASN page. Try reading parameter page\n");
++		ret = spi_nand_read_id(id);
++		if (ret) {
++			ERROR("SPI_NAND Read ID failed.\n");
++			return ret;
++		}
+ 		pp = (struct parameter_page *)buf;
+-		ret = spi_nand_read_pp(pp, &sel);
++		ret = spi_nand_read_pp(id, pp, &sel);
+ 		if (ret) {
+ 			WARN("Parameter page read fail, fallback to read ID.\n");
+-			ret = spi_nand_read_id(id);
+-			if (ret)
+-				return ret;
+ 			spi_nand_set_data_via_id(&spinand_dev, id, &vendor_id);
+ 		} else {
+ 			vendor_id = pp[sel].manufactuere_id;

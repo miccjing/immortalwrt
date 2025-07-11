@@ -676,6 +676,18 @@ define Device/bolt_arion
 endef
 TARGET_DEVICES += bolt_arion
 
+define Device/c-life_xg1
+  $(Device/nand)
+  DEVICE_VENDOR := C-Life
+  DEVICE_MODEL := XG1
+  DEVICE_PACKAGES := kmod-mt7915-firmware kmod-usb3 kmod-usb-audio
+  IMAGE_SIZE := 254720k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | \
+	check-size
+endef
+TARGET_DEVICES += c-life_xg1
+
 define Device/comfast_cf-e390ax
   $(Device/dsa-migration)
   $(Device/uimage-lzma-loader)
@@ -1864,7 +1876,7 @@ define Device/jdcloud_re-sp-01b
   IMAGE_SIZE := 27328k
   DEVICE_VENDOR := JDCloud
   DEVICE_MODEL := RE-SP-01B
-  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7615-firmware \
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615-firmware \
 	kmod-mmc-mtk kmod-usb3 automount
 endef
 TARGET_DEVICES += jdcloud_re-sp-01b

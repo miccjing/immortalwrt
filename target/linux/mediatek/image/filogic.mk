@@ -696,14 +696,14 @@ define Device/cmcc_rax3000me
   DEVICE_DTS := mt7981b-cmcc-rax3000me
   $(call Device/cmcc_rax3000m_common)
   DEVICE_DTS_OVERLAY += mt7981b-cmcc-rax3000me-nousb
-  ARTIFACTS += nand-ddr3-preloader.bin nand-ddr3-bl31-uboot.fip \
-	nand-ddr4-preloader.bin nand-ddr4-bl31-uboot.fip
+  ARTIFACTS += nand-ddr3-preloader.bin nand-ddr4-preloader.bin \
+	nand-usb-bl31-uboot.fip nand-nousb-bl31-uboot.fip
   ARTIFACT/emmc-preloader.bin := mt7981-bl2 emmc-ddr3
   ARTIFACT/emmc-bl31-uboot.fip := mt7981-bl31-uboot cmcc_rax3000me-emmc
   ARTIFACT/nand-ddr3-preloader.bin := mt7981-bl2 spim-nand-ddr3
-  ARTIFACT/nand-ddr3-bl31-uboot.fip := mt7981-bl31-uboot cmcc_rax3000me-nand-ddr3
   ARTIFACT/nand-ddr4-preloader.bin := mt7981-bl2 spim-nand-ddr4
-  ARTIFACT/nand-ddr4-bl31-uboot.fip := mt7981-bl31-uboot cmcc_rax3000me-nand-ddr4
+  ARTIFACT/nand-usb-bl31-uboot.fip := mt7981-bl31-uboot cmcc_rax3000me-nand-usb
+  ARTIFACT/nand-nousb-bl31-uboot.fip := mt7981-bl31-uboot cmcc_rax3000me-nand-nousb
 endef
 TARGET_DEVICES += cmcc_rax3000me
 
@@ -824,6 +824,23 @@ define Device/cudy_re3000-v1
   DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware
 endef
 TARGET_DEVICES += cudy_re3000-v1
+
+define Device/cudy_tr3000-256mb-v1
+  DEVICE_VENDOR := Cudy
+  DEVICE_MODEL := TR3000
+  DEVICE_VARIANT := 256mb v1
+  DEVICE_DTS := mt7981b-cudy-tr3000-256mb-v1
+  DEVICE_DTS_DIR := ../dts
+  SUPPORTED_DEVICES += R103
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 235520k
+  KERNEL_IN_UBI := 1
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += cudy_tr3000-256mb-v1
 
 define Device/cudy_tr3000-v1
   DEVICE_VENDOR := Cudy
@@ -1122,28 +1139,6 @@ define Device/h3c_magic-nx30-pro
   ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot h3c_magic-nx30-pro
 endef
 TARGET_DEVICES += h3c_magic-nx30-pro
-
-define Device/h3c_magic-nx30-pro-nmbm
-  DEVICE_VENDOR := H3C
-  DEVICE_MODEL := Magic NX30 Pro
-  DEVICE_VARIANT := (NMBM layout)
-  DEVICE_DTS := mt7981b-h3c-magic-nx30-pro-nmbm
-  DEVICE_DTS_DIR := ../dts
-  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware
-  UBINIZE_OPTS := -E 5
-  BLOCKSIZE := 128k
-  PAGESIZE := 2048
-  IMAGE_SIZE := 65536k
-  KERNEL_IN_UBI := 1
-  IMAGES += factory.bin
-  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
-  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-  KERNEL = kernel-bin | lzma | \
-        fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
-  KERNEL_INITRAMFS = kernel-bin | lzma | \
-        fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd
-endef
-TARGET_DEVICES += h3c_magic-nx30-pro-nmbm
 
 define Device/huasifei_wh3000-emmc
   DEVICE_VENDOR := Huasifei
@@ -1937,6 +1932,58 @@ define Device/tplink_re6000xd
 endef
 TARGET_DEVICES += tplink_re6000xd
 
+define Device/tplink_tl-7dr-common
+  DEVICE_VENDOR := TP-Link
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS_LOADADDR := 0x45f00000
+  DEVICE_PACKAGES := mt7988-2p5g-phy-firmware kmod-mt7992-firmware mt7988-wo-firmware
+  KERNEL_LOADADDR := 0x46000000
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  UBOOTENV_IN_UBI := 1
+  IMAGES := sysupgrade.itb
+  KERNEL_INITRAMFS_SUFFIX := -recovery.itb
+  KERNEL := kernel-bin | gzip
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.itb := append-kernel | \
+	fit gzip $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb external-with-rootfs | append-metadata
+  ARTIFACTS := preloader.bin bl31-uboot.fip
+endef
+
+define Device/tplink_tl-7dr7230-v1
+  DEVICE_MODEL := TL-7DR7230
+  DEVICE_VARIANT := v1
+  DEVICE_DTS := mt7988d-tplink-tl-7dr7230-v1
+  ARTIFACT/preloader.bin := mt7988-bl2 spim-nand-ddr4
+  ARTIFACT/bl31-uboot.fip := mt7988-bl31-uboot tplink_tl-7dr7230-v1
+  $(call Device/tplink_tl-7dr-common)
+endef
+TARGET_DEVICES += tplink_tl-7dr7230-v1
+
+define Device/tplink_tl-7dr7230-v2
+  DEVICE_MODEL := TL-7DR7230
+  DEVICE_VARIANT := v2
+  DEVICE_DTS := mt7988d-tplink-tl-7dr7230-v2
+  ARTIFACT/preloader.bin := mt7988-bl2 spim-nand-ddr3
+  ARTIFACT/bl31-uboot.fip := mt7988-bl31-uboot tplink_tl-7dr7230-v2
+  $(call Device/tplink_tl-7dr-common)
+endef
+TARGET_DEVICES += tplink_tl-7dr7230-v2
+
+define Device/tplink_tl-7dr7250-v1
+  DEVICE_MODEL := TL-7DR7250
+  DEVICE_VARIANT := v1
+  DEVICE_DTS := mt7988d-tplink-tl-7dr7250-v1
+  ARTIFACT/preloader.bin := mt7988-bl2 spim-nand-ddr4
+  ARTIFACT/bl31-uboot.fip := mt7988-bl31-uboot tplink_tl-7dr7250-v1
+  $(call Device/tplink_tl-7dr-common)
+  DEVICE_PACKAGES += kmod-phy-airoha-en8811h airoha-en8811h-firmware
+endef
+TARGET_DEVICES += tplink_tl-7dr7250-v1
+
 define Device/tplink_tl-xdr-common
   DEVICE_VENDOR := TP-Link
   DEVICE_DTS_DIR := ../dts
@@ -2228,6 +2275,23 @@ define Device/zbtlink_zbt-z8102ax
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += zbtlink_zbt-z8102ax
+
+define Device/zbtlink_zbt-z8102ax-v2
+  DEVICE_VENDOR := Zbtlink
+  DEVICE_MODEL := ZBT-Z8102AX-V2
+  DEVICE_DTS := mt7981b-zbtlink-zbt-z8102ax-v2
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware kmod-usb3 kmod-usb-net-qmi-wwan kmod-usb-serial-option
+  KERNEL_IN_UBI := 1
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 65536k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += zbtlink_zbt-z8102ax-v2
 
 define Device/zbtlink_zbt-z8103ax
   DEVICE_VENDOR := Zbtlink
