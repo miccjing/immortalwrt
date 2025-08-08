@@ -1168,6 +1168,14 @@ define Device/wavlink_wl-wn570ha1
 endef
 TARGET_DEVICES += wavlink_wl-wn570ha1
 
+define Device/wavlink_wl-wn570ha2
+  IMAGE_SIZE := 15488k
+  DEVICE_VENDOR := Wavlink
+  DEVICE_MODEL := WL-WN570HA2
+  DEVICE_PACKAGES := kmod-mt7615e kmod-mt7663-firmware-ap kmod-mt7603
+endef
+TARGET_DEVICES += wavlink_wl-wn570ha2
+
 define Device/wavlink_wl-wn575a3
   IMAGE_SIZE := 7872k
   DEVICE_VENDOR := Wavlink
@@ -1233,6 +1241,15 @@ define Device/wiznet_wizfi630s
   SUPPORTED_DEVICES += wizfi630s
 endef
 TARGET_DEVICES += wiznet_wizfi630s
+
+define Device/wodesys_wd-r1208u
+  IMAGE_SIZE := 7872k
+  DEVICE_VENDOR := Wodesys
+  DEVICE_MODEL := WD-R1208U
+  DEVICE_PACKAGES := kmod-mt76x2
+  SUPPORTED_DEVICES += mtk-apsoc-demo
+endef
+TARGET_DEVICES += wodesys_wd-r1208u
 
 define Device/wrtnode_wrtnode2p
   IMAGE_SIZE := 32448k

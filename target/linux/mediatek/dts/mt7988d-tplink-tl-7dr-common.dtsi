@@ -62,7 +62,7 @@
 			gpios = <&pio 53 GPIO_ACTIVE_HIGH>;
 		};
 
-		led_status_green: led-2 {
+		led_status_green: led-1 {
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_STATUS;
 			gpios = <&pio 54 GPIO_ACTIVE_HIGH>;
@@ -120,8 +120,6 @@
 	phy-mode = "internal";
 	phy-connection-type = "internal";
 	phy = <&int_2p5g_phy>;
-	nvmem-cells = <&macaddr_factory_1e001c 0>;
-	nvmem-cell-names = "mac-address";
 	status = "okay";
 };
 
@@ -308,9 +306,18 @@
 			groups = "spi0", "spi0_wp_hold";
 		};
 	};
+
+	uart0_pins: uart0-pins {
+		mux {
+			function = "uart";
+			groups =  "uart0";
+		};
+	};
 };
 
 &serial0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins>;
 	status = "okay";
 };
 
