@@ -61,6 +61,21 @@ define Device/IfnameMigration
   DEVICE_COMPAT_MESSAGE := Network interface names have been changed
 endef
 
+define Device/nlnet_common
+  DEVICE_VENDOR := NLnet
+  SOC := rk3568
+  UBOOT_DEVICE_NAME := xgp-rk3568
+  BOOT_FLOW := pine64-img
+  DEVICE_PACKAGES := kmod-button-hotplug kmod-hwmon-pwmfan default-settings-chn autocore
+endef
+
+define Device/nlnet_xgp
+$(call Device/nlnet_common)
+  DEVICE_MODEL := XiGuaPi
+  DEVICE_DTS = rockchip/rk3568-xgp-v3
+endef
+TARGET_DEVICES += nlnet_xgp
+
 define Device/ariaboard_photonicat
   $(Device/rk3568)
   DEVICE_VENDOR := Ariaboard

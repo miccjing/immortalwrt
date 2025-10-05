@@ -264,6 +264,13 @@ define U-Boot/mrkaio-m68s-rk3568
     ezpro_mrkaio-m68s
 endef
 
+define U-Boot/xgp-rk3568
+  $(U-Boot/rk3568/Default)
+  NAME:=XGP Board
+  BUILD_DEVICES:= \
+    nlnet_xgp
+endef
+
 define U-Boot/nanopi-r5c-rk3568
   $(U-Boot/rk3568/Default)
   NAME:=NanoPi R5C
@@ -463,6 +470,7 @@ UBOOT_TARGETS := \
   bpi-r2-pro-rk3568 \
   fastrhino-r66s-rk3568 \
   fastrhino-r68s-rk3568 \
+  xgp-rk3568 \
   lyt-t68m-rk3568 \
   mmbox-anas3035-rk3568 \
   mrkaio-m68s-rk3568 \
