@@ -62,10 +62,9 @@ define Device/IfnameMigration
 endef
 
 define Device/nlnet_common
+  $(Device/rk3568)
   DEVICE_VENDOR := NLnet
-  SOC := rk3568
   UBOOT_DEVICE_NAME := xgp-rk3568
-  BOOT_FLOW := pine64-img
   DEVICE_PACKAGES := kmod-button-hotplug kmod-hwmon-pwmfan default-settings-chn autocore
 endef
 
